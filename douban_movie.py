@@ -1,5 +1,7 @@
-#!/usr/bin/env python
-# encoding=utf-8
+"""
+  @Author : zhangyong2625
+  @Email : 1293271923@qq.com
+"""
 import requests
 import re
 import codecs
