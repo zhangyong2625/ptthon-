@@ -1,0 +1,100 @@
+"""
+1. re.findall(pattern, string, flags=0)
+在字符串中找到正则表达式所匹配的所有子串，并返回一个列表，如果没有找到匹配的，则返回空列表。
+
+2.re.match(pattern, string, flags=0)
+尝试从字符串的起始位置匹配一个模式，如果不是起始位置匹配成功的话，match()就返回none。
+
+3.re.search(pattern, string, flags=0)
+扫描整个字符串并返回第一个成功的匹配，匹配成功返回一个匹配的对象，否则返回None。
+
+4.re.sub(pattern, repl, string, count=0, flags=0)：re.sub用于替换字符串中的匹配项。
+repl : 替换的字符串，也可为一个函数。
+string : 要被查找替换的原始字符串。
+count : 模式匹配后替换的最大次数，默认 0 表示替换所有的匹配。
+
+5.re.compile(pattern[, flags])：用于编译正则表达式，生成一个正则表达式（ Pattern ）对象。
+使用re.compile()函数进行转换后，re.search(pattern, string)的调用方式就转换为 pattern.search(string)的调用方式。
+
+6.re.finditer(pattern, string, flags=0)
+和 findall 类似，在字符串中找到正则表达式所匹配的所有子串，并把它们作为一个迭代器返回。
+
+7.re.split(pattern, string[, maxsplit=0, flags=0])：split方法按照能够匹配的子串将字符串分割后返回列表
+maxsplit：分隔次数，maxsplit=1 分隔一次，默认为 0，不限制次数。
+
+特殊字符匹配规则：
+\d  匹配一个数字字符。等价于[0-9]
+\D  匹配一个非数字字符。等价于[^0-9]
+\s  匹配任何空白字符，包括空格、制表符、换页符等等。等价于 [\f\n\r\t\v]
+\S  匹配任何非空白字符。等价于 [^\f\n\r\t\v]
+\w	匹配数字字母下划线。等价于[A-Za-z0-9_]
+\W	匹配非数字字母下划线。等价于 [^A-Za-z0-9_]
+
+模式语法中的特殊元素：
+. ： 匹配任意单个非换行符的其他字符
+[...] ：用来表示一组字符,单独列出：[amk] 匹配 'a'，'m'或'k'
+[^...]：不在[]中的字符：[^abc] 匹配除了a,b,c之外的字符。
+re*	匹配0个或多个的表达式
+re+	匹配1个或多个的表达式
+re?	匹配0个或1个由前面的正则表达式定义的片段，非贪婪方式
+
+a|b 匹配a或b
+(re) 匹配括号内的表达式，也表示一个组
+re{n,m} 匹配 n到m次由前面的正则表达式定义的片段，贪婪方式
+
+"""
+
+
+
+import re
+
+s = "我的qq账号是：qq123456，我的密码是：123456。我的微信账号是：weixin123，我的微信密码是：123abc。\
+我的网易邮箱账号是：123456zy@163.com，我的网易邮箱密码是：abc123abc。"
+
+# re.findall()使用
+pattern_user = '账号是：([0-9a-z@.]+)'
+pattern_pwd = '密码是：([0-9a-z@.]+)'
+user = re.findall(pattern_user, s)
+pwd = re.findall(pattern_pwd, s)
+print(user)
+print(pwd)
+
+# re.compile使用
+pattern_user = re.compile(r'账号是：([\da-z@.]+)')  # \d：匹配一个数字(相当于0-9)  +：匹配1个或多个表达式 ():匹配括号内的表达式  []:用来表示一组字符,单独列出
+pattern_pwd = re.compile(r'密码是：([\da-z@.]+)')
+user = pattern_user.findall(s)
+pwd = pattern_pwd.findall(s)
+print(user)
+print(pwd)
+
+# re.search()使用
+pattern_email = '[a-zA-Z@0-9]+.com'
+result = re.search(pattern_email, s).group(0)  # 使用group(num) 或 groups() 匹配对象函数来获取匹配表达式
+print(result)
+
+# re.match()使用
+s = "123_456_789"
+pattern = '([0-9]*)_([0-9]*)_([0-9]*)'
+result = re.match(pattern, s).group()   # 123_456_789
+result1 = re.match(pattern, s).group(1)     # 123
+result2 = re.match(pattern, s).group(2)     # 456
+result3 = re.match(pattern, s).group(3)     # 789
+print(result, result1, result2, result3)
+
+# re.sub()使用
+s = "a1b2c_123#45 7.8__9!"
+pattern = '[_#\.! ]'
+result = re.sub(pattern, " ", s)
+print(result)
+
+
+# re.finditer()使用
+s = "123_456_789"
+it = re.finditer(r'\d+', s)
+for match in it:
+    print(match.group())
+
+# re.split()使用
+s = "123_456_789"
+list_s = re.split("_", s)
+print(list_s)
