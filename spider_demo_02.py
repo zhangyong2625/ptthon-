@@ -47,7 +47,7 @@ def get_content():
 if __name__ == "__main__":
     # 利用多线程去爬取章节内容
     time_start = time.time()
-    pool = Pool(5)
+    pool = Pool(3)
     pool.map(write_content, get_content())
     time_end = time.time()
     print("多线程爬虫运行时间：%s"%(time_end - time_start))
