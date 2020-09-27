@@ -2,59 +2,75 @@
   @Author : zhangyong2625
   @Email : 1293271923@qq.com
 """
-from bs4 import BeautifulSoup
+
 import requests
-from openpyxl import Workbook
-
-excel_name = "书籍.xlsx"
-wb = Workbook()
-ws1 = wb.active
-ws1.title='书籍'
+import csv
+from lxml.html import etree
 
 
-def get_html(url):
+# 获取url请求内容
+def get_url(url):
     header = {
         'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:47.0) Gecko/20100101 Firefox/47.0'}
-    html = requests.get(url, headers=header).content
-    return html
+    content = requests.get(url, headers=header).content.decode("utf-8")
+    return content
 
 
-def get_con(html):
-    soup = BeautifulSoup(html,'html.parser')
-    book_list = soup.find('div', attrs={'class': 'article'})
-    page = soup.find('div', attrs={'class': 'paginator'})
-    next_page = page.find('span', attrs={'class': 'next'}).find('a')
-    name = []
-    for i in book_list.find_all('table'):
-        book_name = i.find('div', attrs={'class': 'pl2'})
-        m = list(book_name.find('a').stripped_strings)
-        if len(m)>1:
-            x = m[0]+m[1]
-        else:
-            x = m[0]
-        #print(x)
-        name.append(x)
-    if next_page:
-        return name, next_page.get('href')
-    else:
-        return name, None
+# 利用xpath提取网页内容
+def get_result(result):
+    # 将HTML解析成为对象
+    obj = etree.HTML(result)
+    # 获取书籍title
+    list_title = obj.xpath('//table/tr/td[@valign="top"]/div/a/@title')
+    # 获取书籍的作者，价格等信息
+    list_con = obj.xpath('//table/tr/td/p[@class="pl"]/text()')
+    # 获取下一页的url
+    next_url = obj.xpath('//span[@class="next"]/a/@href')
+    return list_title, list_con, next_url
 
 
-def main():
-    url = 'https://book.douban.com/top250'
-    name_list=[]
+# 将结果写入csv文件中
+def write_csv(list_book, list_author, list_price):
+    with open("book.csv", "w", newline='', encoding="utf-8") as f:  # 加入参数newline='' ：避免出现空行
+        # fieldnames定义列名
+        writer = csv.DictWriter(f, fieldnames=['top', 'book', 'author', 'price'])
+        list_result = []
+        for i in range(len(list_book)):
+            d = {'top': i + 1, 'book': list_book[i], 'author': list_author[i], 'price': list_price[i]}
+            list_result.append(d)
+        writer.writeheader()
+        writer.writerows(list_result)
+
+
+# 处理作者和价格信息
+def get_author_price(con):
+    author = []
+    price = []
+    for value in con:
+        author.append(value.split("/")[0])
+        price.append(value.split("/")[-1])
+    return author, price
+
+if __name__ == "__main__":
+    url = r"https://book.douban.com/top250"
+    # 存储书籍名
+    book = []
+    # 存储作者信息
+    author = []
+    # 存储价格信息
+    price = []
     while url:
-        html = get_html(url)
-        name, url = get_con(html)
-        name_list = name_list + name
-    for i in name_list:
-        location = 'A%s'%(name_list.index(i)+1)
-        print(i)
-        print(location)
-        ws1[location]=i
-    wb.save(filename=excel_name)
-
-
-if __name__ == '__main__':
-    main()
-
+        print(url)
+        result = get_url(url)
+        list_name, con, url = get_result(result)
+        pre_author, pre_price = get_author_price(con)
+        book.extend(list_name)
+        author.extend(pre_author)
+        price.extend(pre_price)
+        if not url:
+            break
+        url = url[0]
+    # print(book)
+    # print(author)
+    # print(price)
+    write_csv(book, author, price)
