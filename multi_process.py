@@ -5,13 +5,15 @@ from multiprocessing.dummy import Pool
 time1 = time.time()
 url = r"https://www.baidu.com/"
 html_str = requests.get(url).content.decode()
-print(html_str)
+# print(html_str)
 time2 = time.time()
 print("请求一个网页的时间：%.3f秒"%(time2-time1))
+
 
 # 请求一个网页
 def query(url):
     requests.get(url)
+
 
 # 单线程查询一个网页100次
 time_start = time.time()
@@ -19,17 +21,19 @@ for i in range(100):
     # print("--->%d"%(i+1))
     query(url)
 time_end = time.time()
-print("单线程请求一个网页100次的时间：%.3f秒"%(time_end-time_start))
+print("单线程请求一个网页100次的时间：%.3f秒" % (time_end-time_start))
+
 
 # 多线程查询一个网页100次
 time_start = time.time()
 url_list = []
 for i in range(100):
     url_list.append(url)
-pool = Pool(4) # 初始化了一个有4个线程的线程池
+n = 5
+pool = Pool(n) # 初始化了一个有n个线程的线程池
 pool.map(query,url_list)
 time_end = time.time()
-print("多线程请求一个网页100次的时间：%.3f秒"%(time_end-time_start))
+print("%d个线程请求一个网页100次的时间：%.3f秒" % (n, time_end-time_start))
 
 """
 某一次的运行结果：
