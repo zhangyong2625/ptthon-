@@ -1,12 +1,16 @@
-# import requests
+import xlrd
+import pandas as pd
 
-# url = "https://book.douban.com/top250"
-# header = {
-	# 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:47.0) Gecko/20100101 Firefox/47.0'}
+file = r"C:\Users\Administrator\Desktop\报销模板_张勇.xls"
 
-# result = requests.get(url,headers=header).content
-# print(result)
+wb = xlrd.open_workbook(file)
+sheets = wb.sheet_names()
+print(sheets)
+for sheet in sheets:
+    data = pd.read_excel(file, sheet_name=sheet)
+    print("-"*40+"%s"%sheet+"-"*40)
+    print(data, type(data))
 
-d = {1:"a",2:"b"}
-for key,value in d:
-	print(key,value)
+
+
+
