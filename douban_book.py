@@ -51,7 +51,9 @@ def get_author_price(con):
         price.append(value.split("/")[-1])
     return author, price
 
-if __name__ == "__main__":
+
+# 爬虫主方法
+def main():
     url = r"https://book.douban.com/top250"
     # 存储书籍名
     book = []
@@ -74,3 +76,7 @@ if __name__ == "__main__":
     # print(author)
     # print(price)
     write_csv(book, author, price)
+
+
+if __name__ == "__main__":
+    main()
